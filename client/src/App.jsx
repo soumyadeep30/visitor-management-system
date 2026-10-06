@@ -13,6 +13,9 @@ const emptyForm = {
   status: "Checked In"
 };
 
+const API_URL =
+  "https://visitor-management-system-backend-p4h0.onrender.com";
+
 function formatDate(date) {
   if (!date) return "-";
   return new Date(date).toLocaleString("en-IN", {
@@ -29,18 +32,23 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+const loadVisitors = async (query = search) => {
+  try {
+    setLoading(true);
 
-  const loadVisitors = async (query = search) => {
-    try {
-      setLoading(true);
-      const { data } = await axios.get(`/api/visitors?search=${encodeURIComponent(query)}`);
-      setVisitors(data);
-    } catch (error) {
-      setMessage(error.response?.data?.message || "Unable to load visitors.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const { data } = await axios.get(
+      `https://visitor-management-system-backend-p4h0.onrender.com/api/visitors?search=${encodeURIComponent(query)}`
+    );
+
+    setVisitors(data);
+  } catch (error) {
+    setMessage(
+      error.response?.data?.message || "Unable to load visitors."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     loadVisitors("");
@@ -81,15 +89,24 @@ function App() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingId) {
-        await axios.put(`/api/visitors/${editingId}`, form);
-        setMessage("Visitor details updated successfully.");
-      } else {
-        await axios.post("/api/visitors", form);
-        setMessage("Visitor added successfully.");
-      }
+  e.preventDefault();
+
+  try {
+    if (editingId) {
+      await axios.put(
+        `https://visitor-management-system-backend-p4h0.onrender.com/api/visitors/${editingId}`,
+        form
+      );
+
+      setMessage("Visitor details updated successfully.");
+    } else {
+      await axios.post(
+  "https://visitor-management-system-backend-p4h0.onrender.com/api/visitors",
+  form
+);
+
+      setMessage("Visitor added successfully.");
+    }
       setShowForm(false);
       setEditingId(null);
       setForm(emptyForm);
@@ -100,15 +117,19 @@ function App() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this visitor?")) return;
-    try {
-      await axios.delete(`/api/visitors/${id}`);
-      setMessage("Visitor deleted successfully.");
-      await loadVisitors();
-    } catch (error) {
-      setMessage("Could not delete visitor.");
-    }
-  };
+  if (!window.confirm("Are you sure you want to delete this visitor?")) return;
+
+  try {
+    await axios.delete(
+      `https://visitor-management-system-backend-p4h0.onrender.com/api/visitors/${id}`
+    );
+
+    setMessage("Visitor deleted successfully.");
+    await loadVisitors();
+  } catch (error) {
+    setMessage("Could not delete visitor.");
+  }
+};
 
   const checkedIn = visitors.filter(v => v.status === "Checked In").length;
   const checkedOut = visitors.filter(v => v.status === "Checked Out").length;
